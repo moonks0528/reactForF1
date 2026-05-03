@@ -425,10 +425,13 @@
   /* ── 카 애니메이션 ── */
   function maxTravel() {
     const isMobile = window.innerWidth <= 600;
-    // carWrap 전체 너비 = 속도선(~52px 데스크탑 / ~32px 모바일) + 차체 + 여유
-    const wrapWidth = isMobile ? (32 + 5 + 55) : (52 + 8 + 132);
-    // 트랙 오른쪽 끝에서 16px 여유를 두고 멈춤
-    return Math.max(0, trackRoad.offsetWidth - 12 - wrapWidth - 16);
+    // 차 앞코(SVG 오른쪽) 위치 = carLeft(12) + maxTravel + speedLines + svgWidth
+    // 목표: 앞코가 결승선 오른쪽 끝(finish right edge)을 딱 넘도록
+    // 데스크탑: 12 + maxTravel + 60(속도선) + 132(차) = W → maxTravel = W - 204
+    // 모바일:   12 + maxTravel + 37(속도선) + 55(차)  = W → maxTravel = W - 104
+    return isMobile
+      ? Math.max(0, trackRoad.offsetWidth - 104)
+      : Math.max(0, trackRoad.offsetWidth - 204);
   }
 
   function resetCar() {
