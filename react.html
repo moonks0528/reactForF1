@@ -390,9 +390,10 @@
 </div>
 
 <script>
-  let state      = "ready";
-  let startTime  = 0;
-  let timer      = null;
+  let state        = "ready";
+  let startTime    = 0;
+  let timer        = null;
+  let lightInterval = null;
   let bestRecord = localStorage.getItem("f1Best");
   let history    = JSON.parse(localStorage.getItem("f1History") || "[]");
 
@@ -490,6 +491,8 @@
   }
 
   function startGame() {
+    clearInterval(lightInterval);
+    clearTimeout(timer);
     state = "waiting";
     mainBtn.textContent = "WAIT...";
     message.textContent = "빨간불이 꺼질 때까지 기다리세요.";
@@ -497,11 +500,12 @@
     lights.forEach(l => l.className = "light");
 
     let count = 0;
-    const iv = setInterval(() => {
+    lightInterval = setInterval(() => {
       lights[count].classList.add("red");
       count++;
       if (count === lights.length) {
-        clearInterval(iv);
+        clearInterval(lightInterval);
+        lightInterval = null;
         timer = setTimeout(() => {
           lights.forEach(l => l.className = "light");
           state = "go";
@@ -514,6 +518,8 @@
   }
 
   function falseStart() {
+    clearInterval(lightInterval);
+    lightInterval = null;
     clearTimeout(timer);
     state = "ready";
     lights.forEach(l => { l.className = "light"; l.classList.add("red"); });
