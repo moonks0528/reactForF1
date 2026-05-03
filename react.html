@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>F1 반응속도 테스트</title>
   <style>
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -17,8 +19,18 @@
       background: #b00020;
     }
 
-    .container {
-      margin-top: 50px;
+    .layout {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 30px;
+      padding: 40px 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .game-panel {
+      flex: 1;
     }
 
     .lights {
@@ -72,6 +84,79 @@
       font-size: 20px;
       color: #ccc;
     }
+
+    .history-panel {
+      width: 220px;
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: left;
+      flex-shrink: 0;
+    }
+
+    .history-panel h2 {
+      margin: 0 0 15px;
+      font-size: 18px;
+      color: #f1c40f;
+      border-bottom: 1px solid #333;
+      padding-bottom: 10px;
+    }
+
+    .history-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .history-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #2a2a2a;
+      font-size: 15px;
+      color: #ddd;
+    }
+
+    .history-list li .rank {
+      color: #888;
+      font-size: 13px;
+      width: 24px;
+    }
+
+    .history-list li.best .time {
+      color: #f1c40f;
+      font-weight: bold;
+    }
+
+    .history-list li.false-start .time {
+      color: #e74c3c;
+      font-size: 13px;
+    }
+
+    .history-empty {
+      color: #555;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .clear-btn {
+      margin-top: 15px;
+      width: 100%;
+      padding: 8px;
+      font-size: 13px;
+      background: #333;
+      color: #aaa;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .clear-btn:hover {
+      background: #444;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -81,19 +166,28 @@
     <p>불이 꺼지는 순간 최대한 빠르게 클릭하세요!</p>
   </header>
 
-  <div class="container">
-    <div class="lights">
-      <div class="light" id="l1"></div>
-      <div class="light" id="l2"></div>
-      <div class="light" id="l3"></div>
-      <div class="light" id="l4"></div>
-      <div class="light" id="l5"></div>
+  <div class="layout">
+    <div class="game-panel">
+      <div class="lights">
+        <div class="light" id="l1"></div>
+        <div class="light" id="l2"></div>
+        <div class="light" id="l3"></div>
+        <div class="light" id="l4"></div>
+        <div class="light" id="l5"></div>
+      </div>
+
+      <button id="mainBtn" onclick="handleClick()">START</button>
+
+      <div id="message">START 버튼을 눌러 시작하세요.</div>
+      <div id="record">최고 기록: <span id="best">없음</span></div>
     </div>
 
-    <button id="mainBtn" onclick="handleClick()">START</button>
-
-    <div id="message">START 버튼을 눌러 시작하세요.</div>
-    <div id="record">최고 기록: <span id="best">없음</span></div>
+    <div class="history-panel">
+      <h2>기록 리스트</h2>
+      <ul class="history-list" id="historyList"></ul>
+      <p class="history-empty" id="historyEmpty">아직 기록이 없습니다.</p>
+      <button class="clear-btn" onclick="clearHistory()">기록 초기화</button>
+    </div>
   </div>
 
   <script>
@@ -101,6 +195,7 @@
     let startTime = 0;
     let timer = null;
     let bestRecord = localStorage.getItem("f1Best");
+    let history = JSON.parse(localStorage.getItem("f1History") || "[]");
 
     const lights = [
       document.getElementById("l1"),
@@ -118,14 +213,68 @@
       best.textContent = bestRecord + "ms";
     }
 
+    renderHistory();
+
+    function renderHistory() {
+      const list = document.getElementById("historyList");
+      const empty = document.getElementById("historyEmpty");
+
+      list.innerHTML = "";
+
+      if (history.length === 0) {
+        empty.style.display = "block";
+        return;
+      }
+
+      empty.style.display = "none";
+      const minTime = Math.min(...history.filter(r => r.type === "normal").map(r => r.time));
+
+      history.slice().reverse().forEach((entry, i) => {
+        const li = document.createElement("li");
+        const rank = document.createElement("span");
+        rank.className = "rank";
+        rank.textContent = "#" + (history.length - i);
+
+        const time = document.createElement("span");
+        time.className = "time";
+
+        if (entry.type === "false") {
+          li.classList.add("false-start");
+          time.textContent = "플라잉";
+        } else {
+          time.textContent = entry.time + "ms";
+          if (entry.time === minTime) {
+            li.classList.add("best");
+          }
+        }
+
+        li.appendChild(rank);
+        li.appendChild(time);
+        list.appendChild(li);
+      });
+    }
+
+    function addHistory(entry) {
+      history.push(entry);
+      localStorage.setItem("f1History", JSON.stringify(history));
+      renderHistory();
+    }
+
+    function clearHistory() {
+      history = [];
+      bestRecord = null;
+      localStorage.removeItem("f1History");
+      localStorage.removeItem("f1Best");
+      best.textContent = "없음";
+      renderHistory();
+    }
+
     function handleClick() {
       if (state === "ready") {
         startGame();
-      } 
-      else if (state === "waiting") {
+      } else if (state === "waiting") {
         falseStart();
-      } 
-      else if (state === "go") {
+      } else if (state === "go") {
         checkReaction();
       }
     }
@@ -175,6 +324,7 @@
 
       mainBtn.textContent = "RESTART";
       message.textContent = "❌ 플라잉 스타트! 너무 빨리 눌렀습니다.";
+      addHistory({ type: "false" });
     }
 
     function checkReaction() {
@@ -189,6 +339,7 @@
       });
 
       message.textContent = "반응속도: " + reactionTime + "ms";
+      addHistory({ type: "normal", time: reactionTime });
 
       if (!bestRecord || reactionTime < bestRecord) {
         bestRecord = reactionTime;
