@@ -20,24 +20,25 @@
       display: flex;
       align-items: center;
     }
+    header h1 { font-size: 26px; font-weight: 700; }
+    header p  { font-size: 15px; opacity: 0.75; margin-left: auto; }
 
-    header h1  { font-size: 26px; font-weight: 700; }
-    header p   { font-size: 15px; opacity: 0.75; margin-left: auto; }
-
-    /* ── 메인 레이아웃 ── */
-    .layout {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
+    /* ── 페이지 그리드 (데스크탑) ── */
+    .page {
+      display: grid;
+      grid-template-areas:
+        "game history"
+        "track track";
+      grid-template-columns: 1fr 215px;
       gap: 24px;
-      padding: 36px 24px 0;
       max-width: 880px;
       margin: 0 auto;
+      padding: 36px 24px 44px;
     }
 
     /* ── 게임 패널 ── */
     .game-panel {
-      flex: 1;
+      grid-area: game;
       background: #1a1a1a;
       border-radius: 16px;
       padding: 40px 32px;
@@ -81,7 +82,6 @@
       user-select: none;
       -webkit-user-select: none;
     }
-
     #mainBtn:hover  { background: #fff; }
     #mainBtn:active { transform: scale(0.96); }
 
@@ -97,10 +97,117 @@
     #record { font-size: 16px; color: #666; }
     #best   { color: #f1c40f; font-weight: 700; }
 
+    /* ── 트랙 섹션 ── */
+    .track-section {
+      grid-area: track;
+      background: #1a1a1a;
+      border-radius: 16px;
+      padding: 26px 32px;
+    }
+
+    .track-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      margin-bottom: 14px;
+    }
+
+    .track-road {
+      position: relative;
+      height: 86px;
+      background: #232323;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .track-road::before,
+    .track-road::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      height: 7px;
+      background: repeating-linear-gradient(
+        to right, #c00 0, #c00 12px, #eee 12px, #eee 24px
+      );
+      z-index: 1;
+    }
+    .track-road::before { top: 0; }
+    .track-road::after  { bottom: 0; }
+
+    .center-line {
+      position: absolute;
+      top: 50%;
+      left: 0; right: 0;
+      height: 2px;
+      background: repeating-linear-gradient(
+        to right, #3d3d3d 0, #3d3d3d 20px, transparent 20px, transparent 36px
+      );
+    }
+
+    .start-line {
+      position: absolute;
+      left: 28px; top: 0; bottom: 0;
+      width: 5px;
+      background: repeating-linear-gradient(
+        to bottom, #eee 0, #eee 9px, #333 9px, #333 18px
+      );
+      z-index: 2;
+    }
+
+    .finish-line {
+      position: absolute;
+      right: 28px; top: 0; bottom: 0;
+      width: 13px;
+      background: repeating-linear-gradient(
+        to bottom, black 0, black 9px, white 9px, white 18px
+      );
+      z-index: 2;
+    }
+
+    .car-wrap {
+      position: absolute;
+      left: 42px;
+      top: 17px;
+      display: flex;
+      align-items: center;
+      z-index: 3;
+    }
+
+    .speed-lines {
+      display: none;
+      flex-direction: column;
+      gap: 7px;
+      margin-right: 8px;
+    }
+    .car-wrap.racing .speed-lines { display: flex; }
+
+    .speed-lines span {
+      display: block;
+      height: 2px;
+      border-radius: 1px;
+      animation: speedfade 0.18s linear infinite;
+    }
+    .speed-lines span:nth-child(1) { width: 36px; background: rgba(255,255,255,0.18); }
+    .speed-lines span:nth-child(2) { width: 24px; background: rgba(255,255,255,0.12); animation-delay: .06s; }
+    .speed-lines span:nth-child(3) { width: 44px; background: rgba(255,255,255,0.10); animation-delay: .03s; }
+    .speed-lines span:nth-child(4) { width: 20px; background: rgba(255,255,255,0.08); animation-delay: .09s; }
+
+    @keyframes speedfade {
+      0%   { opacity: 1; transform: scaleX(1); }
+      100% { opacity: 0; transform: scaleX(0.2); }
+    }
+
+    @keyframes carBounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-3px); }
+    }
+    .car-wrap.racing svg { animation: carBounce 0.22s ease-in-out infinite; }
+
     /* ── 기록 패널 ── */
     .history-panel {
-      width: 215px;
-      flex-shrink: 0;
+      grid-area: history;
       background: #1a1a1a;
       border-radius: 16px;
       padding: 24px 20px;
@@ -166,144 +273,9 @@
       cursor: pointer;
       transition: background 0.12s, color 0.12s;
     }
-
     .clear-btn:hover { background: #2e2e2e; color: #aaa; }
 
-    /* ── 트랙 섹션 ── */
-    .track-section {
-      max-width: 880px;
-      margin: 24px auto 44px;
-      padding: 0 24px;
-    }
-
-    .track-card {
-      background: #1a1a1a;
-      border-radius: 16px;
-      padding: 26px 32px;
-    }
-
-    .track-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: #555;
-      text-transform: uppercase;
-      letter-spacing: 1.4px;
-      margin-bottom: 14px;
-    }
-
-    .track-road {
-      position: relative;
-      height: 86px;
-      background: #232323;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    /* 커빙 (상하 붉은 줄무늬) */
-    .track-road::before,
-    .track-road::after {
-      content: '';
-      position: absolute;
-      left: 0; right: 0;
-      height: 7px;
-      background: repeating-linear-gradient(
-        to right,
-        #c00 0, #c00 12px,
-        #eee 12px, #eee 24px
-      );
-      z-index: 1;
-    }
-    .track-road::before { top: 0; }
-    .track-road::after  { bottom: 0; }
-
-    /* 중앙 점선 */
-    .center-line {
-      position: absolute;
-      top: 50%;
-      left: 0; right: 0;
-      height: 2px;
-      background: repeating-linear-gradient(
-        to right,
-        #3d3d3d 0, #3d3d3d 20px,
-        transparent 20px, transparent 36px
-      );
-    }
-
-    /* 시작선 */
-    .start-line {
-      position: absolute;
-      left: 28px;
-      top: 0; bottom: 0;
-      width: 5px;
-      background: repeating-linear-gradient(
-        to bottom,
-        #eee 0, #eee 9px,
-        #333 9px, #333 18px
-      );
-      z-index: 2;
-    }
-
-    /* 결승선 */
-    .finish-line {
-      position: absolute;
-      right: 28px;
-      top: 0; bottom: 0;
-      width: 13px;
-      background: repeating-linear-gradient(
-        to bottom,
-        black 0, black 9px,
-        white 9px, white 18px
-      );
-      z-index: 2;
-    }
-
-    /* F1 카 래퍼 */
-    .car-wrap {
-      position: absolute;
-      left: 42px;
-      top: 17px;          /* (86 - 52) / 2 */
-      display: flex;
-      align-items: center;
-      z-index: 3;
-    }
-
-    /* 속도선 */
-    .speed-lines {
-      display: none;
-      flex-direction: column;
-      gap: 7px;
-      margin-right: 8px;
-    }
-
-    .car-wrap.racing .speed-lines { display: flex; }
-
-    .speed-lines span {
-      display: block;
-      height: 2px;
-      border-radius: 1px;
-      animation: speedfade 0.18s linear infinite;
-    }
-
-    .speed-lines span:nth-child(1) { width: 36px; background: rgba(255,255,255,0.18); }
-    .speed-lines span:nth-child(2) { width: 24px; background: rgba(255,255,255,0.12); animation-delay: .06s; }
-    .speed-lines span:nth-child(3) { width: 44px; background: rgba(255,255,255,0.10); animation-delay: .03s; }
-    .speed-lines span:nth-child(4) { width: 20px; background: rgba(255,255,255,0.08); animation-delay: .09s; }
-
-    @keyframes speedfade {
-      0%   { opacity: 1; transform: scaleX(1); }
-      100% { opacity: 0; transform: scaleX(0.2); }
-    }
-
-    @keyframes carBounce {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-3px); }
-    }
-
-    .car-wrap.racing svg {
-      animation: carBounce 0.22s ease-in-out infinite;
-    }
-
-    /* ── 모바일 반응형 (600px 이하) ── */
+    /* ── 모바일 (600px 이하) ── */
     @media (max-width: 600px) {
       header {
         padding: 18px 20px;
@@ -311,52 +283,51 @@
         align-items: flex-start;
         gap: 4px;
       }
-
       header h1 { font-size: 20px; }
       header p  { margin-left: 0; font-size: 13px; }
 
-      .layout {
-        flex-direction: column;
-        padding: 20px 16px 0;
+      /* 순서: game → track → history */
+      .page {
+        grid-template-areas:
+          "game"
+          "track"
+          "history";
+        grid-template-columns: 1fr;
+        padding: 20px 16px 32px;
         gap: 16px;
       }
 
-      .game-panel {
-        padding: 28px 20px;
-        width: 100%;
-      }
+      .game-panel { padding: 28px 20px; }
 
-      .lights { gap: 12px; margin-bottom: 30px; }
-
-      .light { width: 54px; height: 54px; }
+      .lights { gap: 10px; margin-bottom: 28px; }
+      .light  { width: 52px; height: 52px; }
 
       #mainBtn {
         width: 100%;
         padding: 18px 0;
         font-size: 20px;
-        margin-bottom: 24px;
+        margin-bottom: 22px;
       }
 
       #message { font-size: 20px; }
 
+      /* 트랙: 낮게 + 차 축소 */
+      .track-section { padding: 18px 16px; }
+      .track-road    { height: 64px; }
+      .car-wrap      { top: 10px; }    /* (64 - 44) / 2 */
+      .car-wrap svg  { width: 88px; height: 35px; }
+
+      .speed-lines { gap: 5px; margin-right: 5px; }
+      .speed-lines span:nth-child(1) { width: 22px; }
+      .speed-lines span:nth-child(2) { width: 15px; }
+      .speed-lines span:nth-child(3) { width: 28px; }
+      .speed-lines span:nth-child(4) { width: 12px; }
+
+      /* 기록 패널: 가로 스크롤 없이 */
       .history-panel {
-        width: 100%;
         max-height: 260px;
         overflow-y: auto;
       }
-
-      .history-list { gap: 6px; }
-
-      .track-section {
-        padding: 0 16px;
-        margin: 16px auto 32px;
-      }
-
-      .track-card { padding: 20px 16px; }
-
-      .track-road { height: 72px; }
-
-      .car-wrap { top: 10px; }
     }
   </style>
 </head>
@@ -367,7 +338,9 @@
   <p>불이 꺼지는 순간 최대한 빠르게 클릭하세요</p>
 </header>
 
-<div class="layout">
+<div class="page">
+
+  <!-- 게임 패널 -->
   <div class="game-panel">
     <div class="lights">
       <div class="light" id="l1"></div>
@@ -376,92 +349,72 @@
       <div class="light" id="l4"></div>
       <div class="light" id="l5"></div>
     </div>
-
     <button id="mainBtn" onclick="handleClick()">START</button>
-
     <div id="message">START 버튼을 눌러 시작하세요.</div>
     <div id="record">최고 기록: <span id="best">없음</span></div>
   </div>
 
+  <!-- 레이싱 트랙 -->
+  <div class="track-section">
+    <div class="track-label">Race Track</div>
+    <div class="track-road" id="trackRoad">
+      <div class="center-line"></div>
+      <div class="start-line"></div>
+      <div class="car-wrap" id="carWrap">
+        <div class="speed-lines">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <svg width="132" height="52" viewBox="0 0 132 52" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="5" width="4" height="22" rx="1.5" fill="#bbb"/>
+          <rect x="1" y="5" width="16" height="4" rx="2" fill="#ddd"/>
+          <path d="M12 20 Q22 15 55 16 L108 16 Q122 16 127 23 Q122 30 108 30 L55 30 Q22 30 12 27 Z" fill="#cc0000"/>
+          <path d="M55 16 L108 16 L108 30 L55 30 Z" fill="#b50000"/>
+          <rect x="58" y="16" width="46" height="4" fill="#d50000" opacity="0.6"/>
+          <path d="M62 10 Q72 6 85 6 Q98 6 103 10 L101 16 L64 16 Z" fill="#1c1c1c"/>
+          <path d="M66 11 Q74 8 85 8 Q96 8 100 11 L98 16 L68 16 Z" fill="#1a3355" opacity="0.85"/>
+          <path d="M75 10 Q85 7 95 10" fill="none" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M127 21 L132 24 L127 27 Z" fill="#cc0000"/>
+          <rect x="124" y="27" width="6" height="2" rx="1" fill="#aaa"/>
+          <rect x="116" y="29" width="14" height="3.5" rx="1.5" fill="#ccc"/>
+          <circle cx="30" cy="37" r="11" fill="#111"/>
+          <circle cx="30" cy="37" r="7"  fill="#2b2b2b"/>
+          <circle cx="30" cy="37" r="3"  fill="#444"/>
+          <circle cx="112" cy="37" r="9"  fill="#111"/>
+          <circle cx="112" cy="37" r="5.5" fill="#2b2b2b"/>
+          <circle cx="112" cy="37" r="2.5" fill="#444"/>
+          <line x1="30"  y1="27" x2="42"  y2="23" stroke="#777" stroke-width="1.5"/>
+          <line x1="112" y1="29" x2="100" y2="24" stroke="#777" stroke-width="1.5"/>
+          <rect x="76" y="19" width="22" height="10" rx="2" fill="#fff" opacity="0.08"/>
+          <text x="79" y="27" font-size="9" fill="white" font-weight="bold" font-family="Arial">F1</text>
+        </svg>
+      </div>
+      <div class="finish-line"></div>
+    </div>
+  </div>
+
+  <!-- 기록 패널 -->
   <div class="history-panel">
     <h2>기록 리스트</h2>
     <ul class="history-list" id="historyList"></ul>
     <p class="history-empty" id="historyEmpty">아직 기록이 없습니다.</p>
     <button class="clear-btn" onclick="clearHistory()">기록 초기화</button>
   </div>
-</div>
 
-<!-- 레이싱 트랙 -->
-<div class="track-section">
-  <div class="track-card">
-    <div class="track-label">Race Track</div>
-    <div class="track-road" id="trackRoad">
-      <div class="center-line"></div>
-      <div class="start-line"></div>
-
-      <div class="car-wrap" id="carWrap">
-        <div class="speed-lines">
-          <span></span><span></span><span></span><span></span>
-        </div>
-        <!-- F1 카 SVG (오른쪽 방향) -->
-        <svg width="132" height="52" viewBox="0 0 132 52" xmlns="http://www.w3.org/2000/svg">
-          <!-- 리어윙 지주 -->
-          <rect x="5" y="5" width="4" height="22" rx="1.5" fill="#bbb"/>
-          <!-- 리어윙 블레이드 -->
-          <rect x="1" y="5" width="16" height="4" rx="2" fill="#ddd"/>
-          <!-- 메인 바디 -->
-          <path d="M12 20 Q22 15 55 16 L108 16 Q122 16 127 23 Q122 30 108 30 L55 30 Q22 30 12 27 Z" fill="#cc0000"/>
-          <!-- 사이드포드 -->
-          <path d="M55 16 L108 16 L108 30 L55 30 Z" fill="#b50000"/>
-          <!-- 엔진커버 하이라이트 -->
-          <rect x="58" y="16" width="46" height="4" rx="0" fill="#d50000" opacity="0.6"/>
-          <!-- 콕핏 -->
-          <path d="M62 10 Q72 6 85 6 Q98 6 103 10 L101 16 L64 16 Z" fill="#1c1c1c"/>
-          <!-- 콕핏 유리 -->
-          <path d="M66 11 Q74 8 85 8 Q96 8 100 11 L98 16 L68 16 Z" fill="#1a3355" opacity="0.85"/>
-          <!-- 헤일로 -->
-          <path d="M75 10 Q85 7 95 10" fill="none" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
-          <!-- 노즈콘 -->
-          <path d="M127 21 L132 24 L127 27 Z" fill="#cc0000"/>
-          <!-- 프론트윙 엔드플레이트 -->
-          <rect x="124" y="27" width="6" height="2" rx="1" fill="#aaa"/>
-          <!-- 프론트윙 메인 플레인 -->
-          <rect x="116" y="29" width="14" height="3.5" rx="1.5" fill="#ccc"/>
-          <!-- 리어 타이어 -->
-          <circle cx="30" cy="37" r="11" fill="#111"/>
-          <circle cx="30" cy="37" r="7"  fill="#2b2b2b"/>
-          <circle cx="30" cy="37" r="3"  fill="#444"/>
-          <!-- 프론트 타이어 -->
-          <circle cx="112" cy="37" r="9"  fill="#111"/>
-          <circle cx="112" cy="37" r="5.5" fill="#2b2b2b"/>
-          <circle cx="112" cy="37" r="2.5" fill="#444"/>
-          <!-- 서스펜션 -->
-          <line x1="30"  y1="27" x2="42"  y2="23" stroke="#777" stroke-width="1.5"/>
-          <line x1="112" y1="29" x2="100" y2="24" stroke="#777" stroke-width="1.5"/>
-          <!-- 번호판 -->
-          <rect x="76" y="19" width="22" height="10" rx="2" fill="#fff" opacity="0.08"/>
-          <text x="79" y="27" font-size="9" fill="white" font-weight="bold" font-family="Arial">F1</text>
-        </svg>
-      </div>
-
-      <div class="finish-line"></div>
-    </div>
-  </div>
 </div>
 
 <script>
-  let state        = "ready";
-  let startTime    = 0;
-  let timer        = null;
+  let state         = "ready";
+  let startTime     = 0;
+  let timer         = null;
   let lightInterval = null;
-  let bestRecord = localStorage.getItem("f1Best");
-  let history    = JSON.parse(localStorage.getItem("f1History") || "[]");
+  let bestRecord    = localStorage.getItem("f1Best");
+  let history       = JSON.parse(localStorage.getItem("f1History") || "[]");
 
-  const lights   = [1,2,3,4,5].map(n => document.getElementById("l" + n));
-  const mainBtn  = document.getElementById("mainBtn");
-  const message  = document.getElementById("message");
-  const best     = document.getElementById("best");
-  const carWrap  = document.getElementById("carWrap");
+  const lights    = [1,2,3,4,5].map(n => document.getElementById("l" + n));
+  const mainBtn   = document.getElementById("mainBtn");
+  const message   = document.getElementById("message");
+  const best      = document.getElementById("best");
+  const carWrap   = document.getElementById("carWrap");
   const trackRoad = document.getElementById("trackRoad");
 
   if (bestRecord) best.textContent = bestRecord + "ms";
@@ -469,8 +422,10 @@
 
   /* ── 카 애니메이션 ── */
   function maxTravel() {
-    // 트랙폭 - 시작오프셋(42) - 카폭(132) - 속도선(52) - 결승선여유(50)
-    return Math.max(0, trackRoad.offsetWidth - 276);
+    const isMobile = window.innerWidth <= 600;
+    // 시작오프셋(42) + 차폭(데스크탑132/모바일88) + 속도선여유 + 결승선여유(50)
+    const reserved = isMobile ? 195 : 276;
+    return Math.max(0, trackRoad.offsetWidth - reserved);
   }
 
   function resetCar() {
@@ -480,7 +435,6 @@
   }
 
   function raceCar(reactionTime) {
-    // 200ms → ~0.35s, 600ms → ~1.0s, 1000ms → ~1.6s
     const dur = Math.min(2.2, Math.max(0.3, reactionTime / 600));
     carWrap.classList.add("racing");
     carWrap.style.transition = `transform ${dur}s cubic-bezier(0.2, 0.8, 0.4, 1)`;
@@ -490,7 +444,7 @@
   function falseStartCar() {
     carWrap.classList.remove("racing");
     carWrap.style.transition = "transform 0.22s ease-out";
-    carWrap.style.transform  = "translateX(50px)";
+    carWrap.style.transform  = "translateX(40px)";
   }
 
   /* ── 기록 렌더링 ── */
