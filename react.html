@@ -119,6 +119,7 @@
       height: 86px;
       background: #232323;
       border-radius: 10px;
+      overflow: hidden;
     }
 
     .track-road::before,
@@ -157,7 +158,7 @@
 
     .finish-line {
       position: absolute;
-      right: 90px; top: 0; bottom: 0;
+      right: 16px; top: 0; bottom: 0;
       width: 13px;
       background: repeating-linear-gradient(
         to bottom, black 0, black 9px, white 9px, white 18px
@@ -316,7 +317,7 @@
       .car-wrap      { top: 22px; }    /* (64 - 20) / 2 */
       .car-wrap svg  { width: 55px; height: 20px; }
       .start-line    { left: 80px; }
-      .finish-line   { right: 60px; width: 10px; }
+      .finish-line   { right: 8px; width: 10px; }
 
       .speed-lines { gap: 5px; margin-right: 5px; }
       .speed-lines span:nth-child(1) { width: 22px; }
@@ -409,7 +410,7 @@
   let timer         = null;
   let lightInterval = null;
   let bestRecord    = localStorage.getItem("f1Best");
-  let history       = JSON.parse(localStorage.getItem("f1History") || "[]");
+  let gameHistory   = JSON.parse(localStorage.getItem("f1History") || "[]");
 
   const lights    = [1,2,3,4,5].map(n => document.getElementById("l" + n));
   const mainBtn   = document.getElementById("mainBtn");
@@ -424,11 +425,10 @@
   /* ── 카 애니메이션 ── */
   function maxTravel() {
     const isMobile = window.innerWidth <= 600;
-    // 차의 오른쪽 끝이 트랙 오른쪽 끝에서 8px 안쪽에 멈추도록 계산
-    // 데스크탑: carWidth=132, carLeft=12 → maxTravel = trackWidth - 132 - 8 - 12
-    // 모바일:   carWidth=55,  carLeft=12 → maxTravel = trackWidth - 55  - 8 - 12
-    const carWidth = isMobile ? 55 : 132;
-    return Math.max(0, trackRoad.offsetWidth - carWidth - 20);
+    // carWrap 전체 너비 = 속도선(~52px 데스크탑 / ~32px 모바일) + 차체 + 여유
+    const wrapWidth = isMobile ? (32 + 5 + 55) : (52 + 8 + 132);
+    // 트랙 오른쪽 끝에서 16px 여유를 두고 멈춤
+    return Math.max(0, trackRoad.offsetWidth - 12 - wrapWidth - 16);
   }
 
   function resetCar() {
@@ -456,17 +456,17 @@
     const empty = document.getElementById("historyEmpty");
     list.innerHTML = "";
 
-    if (history.length === 0) { empty.style.display = "block"; return; }
+    if (gameHistory.length === 0) { empty.style.display = "block"; return; }
     empty.style.display = "none";
 
-    const times   = history.filter(r => r.type === "normal").map(r => r.time);
+    const times   = gameHistory.filter(r => r.type === "normal").map(r => r.time);
     const minTime = times.length ? Math.min(...times) : null;
 
-    history.slice().reverse().forEach((entry, i) => {
+    gameHistory.slice().reverse().forEach((entry, i) => {
       const li   = document.createElement("li");
       const rank = document.createElement("span");
       rank.className   = "rank";
-      rank.textContent = "#" + (history.length - i);
+      rank.textContent = "#" + (gameHistory.length - i);
 
       const time = document.createElement("span");
       time.className = "time";
@@ -486,13 +486,13 @@
   }
 
   function addHistory(entry) {
-    history.push(entry);
-    localStorage.setItem("f1History", JSON.stringify(history));
+    gameHistory.push(entry);
+    localStorage.setItem("f1History", JSON.stringify(gameHistory));
     renderHistory();
   }
 
   function clearHistory() {
-    history = [];
+    gameHistory = [];
     bestRecord = null;
     localStorage.removeItem("f1History");
     localStorage.removeItem("f1Best");
