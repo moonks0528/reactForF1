@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>F1 반응속도 테스트</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -76,6 +77,9 @@
       letter-spacing: 1.5px;
       transition: background 0.12s, transform 0.08s;
       margin-bottom: 30px;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     #mainBtn:hover  { background: #fff; }
@@ -297,6 +301,62 @@
 
     .car-wrap.racing svg {
       animation: carBounce 0.22s ease-in-out infinite;
+    }
+
+    /* ── 모바일 반응형 (600px 이하) ── */
+    @media (max-width: 600px) {
+      header {
+        padding: 18px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      header h1 { font-size: 20px; }
+      header p  { margin-left: 0; font-size: 13px; }
+
+      .layout {
+        flex-direction: column;
+        padding: 20px 16px 0;
+        gap: 16px;
+      }
+
+      .game-panel {
+        padding: 28px 20px;
+        width: 100%;
+      }
+
+      .lights { gap: 12px; margin-bottom: 30px; }
+
+      .light { width: 54px; height: 54px; }
+
+      #mainBtn {
+        width: 100%;
+        padding: 18px 0;
+        font-size: 20px;
+        margin-bottom: 24px;
+      }
+
+      #message { font-size: 20px; }
+
+      .history-panel {
+        width: 100%;
+        max-height: 260px;
+        overflow-y: auto;
+      }
+
+      .history-list { gap: 6px; }
+
+      .track-section {
+        padding: 0 16px;
+        margin: 16px auto 32px;
+      }
+
+      .track-card { padding: 20px 16px; }
+
+      .track-road { height: 72px; }
+
+      .car-wrap { top: 10px; }
     }
   </style>
 </head>
