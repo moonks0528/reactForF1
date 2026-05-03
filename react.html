@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>F1 반응속도 테스트</title>
   <style>
+    :root {
+      --car-primary:   #cc0000;
+      --car-secondary: #b50000;
+      --car-highlight: #d50000;
+      --header-bg:     #b00020;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -14,16 +21,100 @@
       min-height: 100vh;
     }
 
+    /* ── 헤더 ── */
     header {
       padding: 26px 40px;
-      background: #b00020;
+      background: var(--header-bg);
       display: flex;
       align-items: center;
+      transition: background 0.3s;
     }
     header h1 { font-size: 26px; font-weight: 700; }
     header p  { font-size: 15px; opacity: 0.75; margin-left: auto; }
 
-    /* ── 페이지 그리드 (데스크탑) ── */
+    /* ── 옵션 바 ── */
+    .options-wrap {
+      background: #111;
+      border-bottom: 1px solid #1e1e1e;
+    }
+    .options-bar {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .option-divider {
+      width: 1px;
+      height: 20px;
+      background: #2a2a2a;
+    }
+
+    /* 3판 연속 체크박스 */
+    .round-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #777;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .round-check input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #f1c40f;
+      cursor: pointer;
+    }
+    .round-check.on { color: #ccc; }
+
+    /* 팀 컬러 */
+    .team-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .team-title {
+      font-size: 12px;
+      color: #555;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      white-space: nowrap;
+    }
+    .team-list { display: flex; gap: 7px; flex-wrap: wrap; }
+
+    .team-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 20px;
+      border: 1.5px solid #2a2a2a;
+      background: transparent;
+      color: #666;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .team-btn:hover { border-color: #444; color: #aaa; }
+    .team-btn.active { border-color: var(--car-primary); color: #ddd; }
+
+    .team-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── 페이지 그리드 ── */
     .page {
       display: grid;
       grid-template-areas:
@@ -47,13 +138,34 @@
       align-items: center;
     }
 
+    /* 라운드 진행 표시 */
+    .round-bar {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      font-size: 13px;
+      color: #666;
+    }
+    .round-bar.visible { display: flex; }
+    .round-dots { display: flex; gap: 7px; }
+    .round-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 2px solid #3a3a3a;
+      background: transparent;
+      transition: all 0.25s;
+    }
+    .round-dot.done   { background: #f1c40f; border-color: #f1c40f; }
+    .round-dot.active { border-color: #888; }
+
     .lights {
       display: flex;
       justify-content: center;
       gap: 16px;
       margin-bottom: 40px;
     }
-
     .light {
       width: 68px;
       height: 68px;
@@ -62,7 +174,6 @@
       border: 3px solid #3a3a3a;
       transition: background 0.12s, box-shadow 0.12s;
     }
-
     .red   { background: #e00; box-shadow: 0 0 20px #e00; }
     .green { background: #0d0; box-shadow: 0 0 24px #0d0; }
 
@@ -84,6 +195,7 @@
     }
     #mainBtn:hover  { background: #fff; }
     #mainBtn:active { transform: scale(0.96); }
+    #mainBtn:disabled { opacity: 0.5; cursor: default; transform: none; }
 
     #message {
       font-size: 26px;
@@ -93,7 +205,6 @@
       margin-bottom: 16px;
       text-align: center;
     }
-
     #record { font-size: 16px; color: #666; }
     #best   { color: #f1c40f; font-weight: 700; }
 
@@ -104,7 +215,6 @@
       border-radius: 16px;
       padding: 26px 32px;
     }
-
     .track-label {
       font-size: 12px;
       font-weight: 700;
@@ -113,7 +223,6 @@
       letter-spacing: 1.4px;
       margin-bottom: 14px;
     }
-
     .track-road {
       position: relative;
       height: 86px;
@@ -121,7 +230,6 @@
       border-radius: 10px;
       overflow: hidden;
     }
-
     .track-road::before,
     .track-road::after {
       content: '';
@@ -135,17 +243,14 @@
     }
     .track-road::before { top: 0; }
     .track-road::after  { bottom: 0; }
-
     .center-line {
       position: absolute;
-      top: 50%;
-      left: 0; right: 0;
+      top: 50%; left: 0; right: 0;
       height: 2px;
       background: repeating-linear-gradient(
         to right, #3d3d3d 0, #3d3d3d 20px, transparent 20px, transparent 36px
       );
     }
-
     .start-line {
       position: absolute;
       left: 155px; top: 0; bottom: 0;
@@ -155,7 +260,6 @@
       );
       z-index: 2;
     }
-
     .finish-line {
       position: absolute;
       right: 16px; top: 0; bottom: 0;
@@ -165,16 +269,13 @@
       );
       z-index: 2;
     }
-
     .car-wrap {
       position: absolute;
-      left: 12px;
-      top: 17px;
+      left: 12px; top: 17px;
       display: flex;
       align-items: center;
       z-index: 3;
     }
-
     .speed-lines {
       display: none;
       flex-direction: column;
@@ -182,7 +283,6 @@
       margin-right: 8px;
     }
     .car-wrap.racing .speed-lines { display: flex; }
-
     .speed-lines span {
       display: block;
       height: 2px;
@@ -193,17 +293,21 @@
     .speed-lines span:nth-child(2) { width: 24px; background: rgba(255,255,255,0.12); animation-delay: .06s; }
     .speed-lines span:nth-child(3) { width: 44px; background: rgba(255,255,255,0.10); animation-delay: .03s; }
     .speed-lines span:nth-child(4) { width: 20px; background: rgba(255,255,255,0.08); animation-delay: .09s; }
-
     @keyframes speedfade {
       0%   { opacity: 1; transform: scaleX(1); }
       100% { opacity: 0; transform: scaleX(0.2); }
     }
-
     @keyframes carBounce {
       0%, 100% { transform: translateY(0); }
       50%       { transform: translateY(-3px); }
     }
     .car-wrap.racing svg { animation: carBounce 0.22s ease-in-out infinite; }
+
+    /* 차 SVG 색상 (CSS 변수 연동) */
+    .car-main { fill: var(--car-primary); }
+    .car-dark { fill: var(--car-secondary); }
+    .car-glow { fill: var(--car-highlight); opacity: 0.6; }
+    .car-nose { fill: var(--car-primary); }
 
     /* ── 기록 패널 ── */
     .history-panel {
@@ -214,7 +318,6 @@
       display: flex;
       flex-direction: column;
     }
-
     .history-panel h2 {
       font-size: 13px;
       font-weight: 700;
@@ -225,20 +328,17 @@
       border-bottom: 1px solid #2a2a2a;
       margin-bottom: 14px;
     }
-
     .history-list {
       list-style: none;
       display: flex;
       flex-direction: column;
       gap: 7px;
-      max-height: 225px;   /* 항목 5개 높이 */
+      max-height: 225px;
       overflow-y: auto;
     }
-
     .history-list::-webkit-scrollbar { width: 4px; }
     .history-list::-webkit-scrollbar-track { background: transparent; }
     .history-list::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
-
     .history-list li {
       display: flex;
       justify-content: space-between;
@@ -249,22 +349,17 @@
       font-size: 15px;
       color: #bbb;
     }
-
     .history-list .rank { color: #555; font-size: 13px; }
-
     .history-list li.best       { background: #2c2500; }
     .history-list li.best .time { color: #f1c40f; font-weight: 700; }
-
     .history-list li.false-start       { background: #2c1010; }
     .history-list li.false-start .time { color: #e74c3c; font-size: 13px; }
-
     .history-empty {
       color: #444;
       font-size: 14px;
       text-align: center;
       padding: 20px 0;
     }
-
     .clear-btn {
       margin-top: 16px;
       width: 100%;
@@ -280,61 +375,40 @@
     }
     .clear-btn:hover { background: #2e2e2e; color: #aaa; }
 
-    /* ── 모바일 (600px 이하) ── */
+    /* ── 모바일 ── */
     @media (max-width: 600px) {
-      header {
-        padding: 18px 20px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-      }
+      header { padding: 18px 20px; flex-direction: column; align-items: flex-start; gap: 4px; }
       header h1 { font-size: 20px; }
       header p  { margin-left: 0; font-size: 13px; }
 
-      /* 순서: game → track → history */
+      .options-bar { padding: 12px 16px; gap: 14px; }
+      .team-btn { font-size: 11px; padding: 4px 9px; }
+
       .page {
-        grid-template-areas:
-          "game"
-          "track"
-          "history";
+        grid-template-areas: "game" "track" "history";
         grid-template-columns: 1fr;
         padding: 20px 16px 32px;
         gap: 16px;
       }
-
       .game-panel { padding: 28px 20px; }
-
       .lights { gap: 10px; margin-bottom: 28px; }
       .light  { width: 52px; height: 52px; }
-
-      #mainBtn {
-        width: 100%;
-        padding: 18px 0;
-        font-size: 20px;
-        margin-bottom: 22px;
-      }
-
+      #mainBtn { width: 100%; padding: 18px 0; font-size: 20px; margin-bottom: 22px; }
       #message { font-size: 20px; }
 
-      /* 트랙: 낮게 + 차 축소 */
       .track-section { padding: 18px 16px; }
       .track-road    { height: 64px; }
-      .car-wrap      { top: 22px; }    /* (64 - 20) / 2 */
+      .car-wrap      { top: 22px; }
       .car-wrap svg  { width: 55px; height: 20px; }
       .start-line    { left: 80px; }
       .finish-line   { right: 8px; width: 10px; }
-
       .speed-lines { gap: 5px; margin-right: 5px; }
       .speed-lines span:nth-child(1) { width: 22px; }
       .speed-lines span:nth-child(2) { width: 15px; }
       .speed-lines span:nth-child(3) { width: 28px; }
       .speed-lines span:nth-child(4) { width: 12px; }
 
-      /* 기록 패널: 가로 스크롤 없이 */
-      .history-panel {
-        max-height: 260px;
-        overflow-y: auto;
-      }
+      .history-panel { max-height: none; overflow-y: visible; }
     }
   </style>
 </head>
@@ -345,10 +419,39 @@
   <p>불이 꺼지는 순간 최대한 빠르게 클릭하세요</p>
 </header>
 
+<!-- 옵션 바 -->
+<div class="options-wrap">
+  <div class="options-bar">
+
+    <label class="round-check" id="roundLabel">
+      <input type="checkbox" id="roundModeCheck">
+      <span>3판 연속 모드</span>
+    </label>
+
+    <div class="option-divider"></div>
+
+    <div class="team-section">
+      <span class="team-title">팀 컬러</span>
+      <div class="team-list" id="teamList"></div>
+    </div>
+
+  </div>
+</div>
+
 <div class="page">
 
   <!-- 게임 패널 -->
   <div class="game-panel">
+
+    <div class="round-bar" id="roundBar">
+      <span id="roundText">라운드 1 / 3</span>
+      <div class="round-dots">
+        <div class="round-dot" id="rd0"></div>
+        <div class="round-dot" id="rd1"></div>
+        <div class="round-dot" id="rd2"></div>
+      </div>
+    </div>
+
     <div class="lights">
       <div class="light" id="l1"></div>
       <div class="light" id="l2"></div>
@@ -356,6 +459,7 @@
       <div class="light" id="l4"></div>
       <div class="light" id="l5"></div>
     </div>
+
     <button id="mainBtn" onclick="handleClick()">START</button>
     <div id="message">START 버튼을 눌러 시작하세요.</div>
     <div id="record">최고 기록: <span id="best">없음</span></div>
@@ -374,13 +478,13 @@
         <svg width="132" height="52" viewBox="0 0 132 52" xmlns="http://www.w3.org/2000/svg">
           <rect x="5" y="5" width="4" height="22" rx="1.5" fill="#bbb"/>
           <rect x="1" y="5" width="16" height="4" rx="2" fill="#ddd"/>
-          <path d="M12 20 Q22 15 55 16 L108 16 Q122 16 127 23 Q122 30 108 30 L55 30 Q22 30 12 27 Z" fill="#cc0000"/>
-          <path d="M55 16 L108 16 L108 30 L55 30 Z" fill="#b50000"/>
-          <rect x="58" y="16" width="46" height="4" fill="#d50000" opacity="0.6"/>
+          <path class="car-main" d="M12 20 Q22 15 55 16 L108 16 Q122 16 127 23 Q122 30 108 30 L55 30 Q22 30 12 27 Z"/>
+          <path class="car-dark" d="M55 16 L108 16 L108 30 L55 30 Z"/>
+          <rect class="car-glow" x="58" y="16" width="46" height="4"/>
           <path d="M62 10 Q72 6 85 6 Q98 6 103 10 L101 16 L64 16 Z" fill="#1c1c1c"/>
           <path d="M66 11 Q74 8 85 8 Q96 8 100 11 L98 16 L68 16 Z" fill="#1a3355" opacity="0.85"/>
           <path d="M75 10 Q85 7 95 10" fill="none" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
-          <path d="M127 21 L132 24 L127 27 Z" fill="#cc0000"/>
+          <path class="car-nose" d="M127 21 L132 24 L127 27 Z"/>
           <rect x="124" y="27" width="6" height="2" rx="1" fill="#aaa"/>
           <rect x="116" y="29" width="14" height="3.5" rx="1.5" fill="#ccc"/>
           <circle cx="30" cy="37" r="11" fill="#111"/>
@@ -410,6 +514,47 @@
 </div>
 
 <script>
+  /* ── 팀 컬러 데이터 ── */
+  const TEAMS = [
+    { name: "Ferrari",      primary: "#cc0000", secondary: "#a80000", highlight: "#d50000" },
+    { name: "McLaren",      primary: "#ff8000", secondary: "#cc5500", highlight: "#ff9900" },
+    { name: "Mercedes",     primary: "#00d2be", secondary: "#009b8e", highlight: "#00e6d0" },
+    { name: "Red Bull",     primary: "#3671c6", secondary: "#1e3163", highlight: "#4a88e0" },
+    { name: "Williams",     primary: "#005aff", secondary: "#0040cc", highlight: "#3377ff" },
+    { name: "Aston Martin", primary: "#358c75", secondary: "#005249", highlight: "#42b090" },
+  ];
+
+  let activeTeam = localStorage.getItem("f1Team") || "Ferrari";
+
+  /* 팀 버튼 생성 */
+  const teamList = document.getElementById("teamList");
+  TEAMS.forEach(t => {
+    const btn = document.createElement("button");
+    btn.className = "team-btn" + (t.name === activeTeam ? " active" : "");
+    btn.innerHTML = `<span class="team-dot" style="background:${t.primary}"></span>${t.name}`;
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".team-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      applyTeam(t);
+      localStorage.setItem("f1Team", t.name);
+    });
+    teamList.appendChild(btn);
+  });
+
+  function applyTeam(t) {
+    const root = document.documentElement;
+    root.style.setProperty("--car-primary",   t.primary);
+    root.style.setProperty("--car-secondary",  t.secondary);
+    root.style.setProperty("--car-highlight",  t.highlight);
+    root.style.setProperty("--header-bg",      t.secondary);
+    activeTeam = t.name;
+  }
+
+  /* 저장된 팀 적용 */
+  const savedTeam = TEAMS.find(t => t.name === activeTeam);
+  if (savedTeam) applyTeam(savedTeam);
+
+  /* ── 게임 상태 ── */
   let state         = "ready";
   let startTime     = 0;
   let timer         = null;
@@ -417,6 +562,36 @@
   let bestRecord    = localStorage.getItem("f1Best");
   let gameHistory   = JSON.parse(localStorage.getItem("f1History") || "[]");
 
+  /* 3판 연속 모드 */
+  let roundMode   = false;
+  let roundCount  = 0;
+  let roundTimes  = [];
+
+  const roundModeCheck = document.getElementById("roundModeCheck");
+  const roundLabel     = document.getElementById("roundLabel");
+  const roundBar       = document.getElementById("roundBar");
+
+  roundModeCheck.addEventListener("change", () => {
+    roundMode = roundModeCheck.checked;
+    roundLabel.classList.toggle("on", roundMode);
+    roundCount = 0;
+    roundTimes = [];
+    updateRoundBar();
+  });
+
+  function updateRoundBar() {
+    if (!roundMode) { roundBar.classList.remove("visible"); return; }
+    roundBar.classList.add("visible");
+    document.getElementById("roundText").textContent = `라운드 ${roundCount + 1} / 3`;
+    [0, 1, 2].forEach(i => {
+      const dot = document.getElementById("rd" + i);
+      dot.classList.remove("done", "active");
+      if (i < roundCount)  dot.classList.add("done");
+      if (i === roundCount) dot.classList.add("active");
+    });
+  }
+
+  /* ── DOM 참조 ── */
   const lights    = [1,2,3,4,5].map(n => document.getElementById("l" + n));
   const mainBtn   = document.getElementById("mainBtn");
   const message   = document.getElementById("message");
@@ -430,10 +605,6 @@
   /* ── 카 애니메이션 ── */
   function maxTravel() {
     const isMobile = window.innerWidth <= 600;
-    // 차 앞코(SVG 오른쪽) 위치 = carLeft(12) + maxTravel + speedLines + svgWidth
-    // 목표: 앞코가 결승선 오른쪽 끝(finish right edge)을 딱 넘도록
-    // 데스크탑: 12 + maxTravel + 60(속도선) + 132(차) = W → maxTravel = W - 204
-    // 모바일:   12 + maxTravel + 37(속도선) + 55(차)  = W → maxTravel = W - 104
     return isMobile
       ? Math.max(0, trackRoad.offsetWidth - 104)
       : Math.max(0, trackRoad.offsetWidth - 204);
@@ -470,7 +641,6 @@
     if (normal.length === 0 && falseCount === 0) { empty.style.display = "block"; return; }
     empty.style.display = "none";
 
-    // 빠른 순으로 정렬
     const sorted = [...normal].sort((a, b) => a.time - b.time);
 
     sorted.forEach((entry, i) => {
@@ -478,30 +648,23 @@
       const rank = document.createElement("span");
       rank.className   = "rank";
       rank.textContent = (i + 1) + "위";
-
       const time = document.createElement("span");
-      time.className = "time";
-      time.textContent = entry.time + "ms";
-
+      time.className   = "time";
+      time.textContent = entry.time + "ms" + (entry.isAvg ? " (평균)" : "");
       if (i === 0) li.classList.add("best");
-
       li.appendChild(rank);
       li.appendChild(time);
       list.appendChild(li);
     });
 
-    // 플라잉 횟수 요약
     if (falseCount > 0) {
-      const li    = document.createElement("li");
+      const li  = document.createElement("li");
       li.classList.add("false-start");
-      const label = document.createElement("span");
-      label.className   = "rank";
-      label.textContent = "플라잉";
-      const cnt   = document.createElement("span");
-      cnt.className   = "time";
-      cnt.textContent = falseCount + "회";
-      li.appendChild(label);
-      li.appendChild(cnt);
+      const lbl = document.createElement("span");
+      lbl.className = "rank"; lbl.textContent = "플라잉";
+      const cnt = document.createElement("span");
+      cnt.className = "time"; cnt.textContent = falseCount + "회";
+      li.appendChild(lbl); li.appendChild(cnt);
       list.appendChild(li);
     }
   }
@@ -514,7 +677,7 @@
 
   function clearHistory() {
     gameHistory = [];
-    bestRecord = null;
+    bestRecord  = null;
     localStorage.removeItem("f1History");
     localStorage.removeItem("f1Best");
     best.textContent = "없음";
@@ -536,6 +699,7 @@
     message.textContent = "빨간불이 꺼질 때까지 기다리세요.";
     resetCar();
     lights.forEach(l => l.className = "light");
+    updateRoundBar();
 
     let count = 0;
     lightInterval = setInterval(() => {
@@ -565,22 +729,63 @@
     message.textContent = "❌ 플라잉 스타트! 너무 빨리 눌렀습니다.";
     falseStartCar();
     addHistory({ type: "false" });
+
+    if (roundMode) {
+      roundCount = 0;
+      roundTimes = [];
+      updateRoundBar();
+      message.textContent += " (시리즈 초기화)";
+    }
   }
 
   function checkReaction() {
     const t = Date.now() - startTime;
     state = "ready";
-    mainBtn.textContent = "RESTART";
     lights.forEach(l => { l.className = "light"; l.classList.add("green"); });
-    message.textContent = "반응속도: " + t + "ms";
     raceCar(t);
-    addHistory({ type: "normal", time: t });
 
+    if (roundMode) {
+      roundTimes.push(t);
+      roundCount++;
+      updateRoundBar();
+
+      if (roundCount < 3) {
+        message.textContent = `라운드 ${roundCount}/3 완료 · ${t}ms`;
+        mainBtn.textContent  = "잠깐...";
+        mainBtn.disabled     = true;
+        addHistory({ type: "normal", time: t });
+        updateBest(t);
+        setTimeout(() => {
+          mainBtn.disabled = false;
+          startGame();
+        }, 1800);
+      } else {
+        const avg = Math.round(roundTimes.reduce((a, b) => a + b, 0) / 3);
+        message.textContent = `3판 평균: ${avg}ms 🏁`;
+        mainBtn.textContent  = "다시 시작";
+        addHistory({ type: "normal", time: t });
+        addHistory({ type: "normal", time: avg, isAvg: true });
+        updateBest(t);
+        roundCount = 0;
+        roundTimes = [];
+        updateRoundBar();
+      }
+    } else {
+      message.textContent = "반응속도: " + t + "ms";
+      mainBtn.textContent  = "RESTART";
+      addHistory({ type: "normal", time: t });
+      updateBest(t);
+    }
+  }
+
+  function updateBest(t) {
     if (!bestRecord || t < bestRecord) {
       bestRecord = t;
       localStorage.setItem("f1Best", bestRecord);
       best.textContent    = bestRecord + "ms";
-      message.textContent += " 🎉 신기록!";
+      if (!document.getElementById("message").textContent.includes("평균")) {
+        message.textContent += " 🎉 신기록!";
+      }
     }
   }
 </script>
