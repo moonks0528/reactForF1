@@ -2,98 +2,232 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>로또 번호 추천기</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f4f6f8;
-      --header-bg: #222;
-      --header-color: #ffffff;
-      --text: #111111;
-      --card-bg: #ffffff;
-      --toggle-bg: #444;
+      --bg: #f0f2f5;
+      --surface: #ffffff;
+      --surface2: #f8f9fb;
+      --header-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      --text: #1a1a2e;
+      --text-sub: #6b7280;
+      --border: #e5e7eb;
+      --btn-primary: #4f46e5;
+      --btn-primary-hover: #4338ca;
+      --toggle-bg: rgba(255,255,255,0.15);
       --toggle-color: #ffffff;
+      --toggle-border: rgba(255,255,255,0.3);
+      --label-bg: #eef2ff;
+      --label-color: #4f46e5;
+      --bonus-border: #f59e0b;
+      --shadow: 0 4px 24px rgba(0,0,0,0.08);
+      --shadow-hover: 0 8px 32px rgba(0,0,0,0.13);
     }
 
     [data-theme="dark"] {
-      --bg: #1a1a2e;
-      --header-bg: #0f0f1a;
-      --header-color: #e0e0e0;
-      --text: #e0e0e0;
-      --card-bg: #16213e;
-      --toggle-bg: #e0e0e0;
-      --toggle-color: #1a1a2e;
+      --bg: #0f0f1a;
+      --surface: #1a1a2e;
+      --surface2: #16213e;
+      --header-bg: linear-gradient(135deg, #0a0a14 0%, #0f0f1a 100%);
+      --text: #e8eaf6;
+      --text-sub: #9ca3af;
+      --border: #2a2a40;
+      --btn-primary: #6366f1;
+      --btn-primary-hover: #818cf8;
+      --toggle-bg: rgba(255,255,255,0.1);
+      --toggle-color: #e8eaf6;
+      --toggle-border: rgba(255,255,255,0.2);
+      --label-bg: #1e1b4b;
+      --label-color: #818cf8;
+      --bonus-border: #fbbf24;
+      --shadow: 0 4px 24px rgba(0,0,0,0.4);
+      --shadow-hover: 0 8px 32px rgba(0,0,0,0.6);
     }
 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: 'Noto Sans KR', sans-serif;
       background: var(--bg);
       color: var(--text);
-      text-align: center;
+      min-height: 100vh;
       transition: background 0.3s, color 0.3s;
     }
 
     header {
       background: var(--header-bg);
-      color: var(--header-color);
-      padding: 40px 20px 20px;
+      color: #ffffff;
+      padding: 48px 24px 40px;
       position: relative;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      font-size: 0.95rem;
+      opacity: 0.7;
     }
 
     .theme-toggle {
       position: absolute;
-      top: 16px;
-      right: 20px;
-      padding: 8px 16px;
-      font-size: 14px;
-      border: none;
+      top: 20px;
+      right: 24px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 600;
+      border: 1px solid var(--toggle-border);
       border-radius: 20px;
       background: var(--toggle-bg);
       color: var(--toggle-color);
       cursor: pointer;
-      transition: background 0.3s, color 0.3s;
+      backdrop-filter: blur(8px);
+      transition: background 0.3s, border 0.3s;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255,255,255,0.25);
     }
 
     .container {
-      margin-top: 40px;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
     }
 
-    button.generate-btn {
-      padding: 15px 30px;
-      font-size: 18px;
+    .controls {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 28px 24px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      border: 1px solid var(--border);
+      transition: background 0.3s, border 0.3s, box-shadow 0.3s;
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 17px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 700;
       border: none;
-      border-radius: 10px;
-      background: #0077cc;
+      border-radius: 12px;
+      background: var(--btn-primary);
       color: white;
+      cursor: pointer;
+      letter-spacing: -0.3px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .generate-btn:hover { background: var(--btn-primary-hover); }
+    .generate-btn:active { transform: scale(0.98); }
+
+    .checkbox-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       cursor: pointer;
     }
 
-    button.generate-btn:hover {
-      background: #005fa3;
+    .checkbox-wrap input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--btn-primary);
+      cursor: pointer;
     }
 
-    .set {
-      margin-top: 20px;
+    .checkbox-wrap label {
+      font-size: 15px;
+      color: var(--text-sub);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    #result {
+      margin-top: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .set-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      animation: fadeUp 0.3s ease both;
+      transition: background 0.3s, border 0.3s, box-shadow 0.3s;
+    }
+
+    .set-card:hover {
+      box-shadow: var(--shadow-hover);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .set-label {
+      min-width: 52px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--label-bg);
+      color: var(--label-color);
+      letter-spacing: 0.3px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .balls-wrap {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      flex: 1;
     }
 
     .ball {
-      display: inline-block;
-      width: 45px;
-      height: 45px;
-      line-height: 45px;
-      margin: 5px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       color: white;
-      font-weight: bold;
+      font-size: 14px;
+      font-weight: 700;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
-    .bonus {
-      border: 3px solid #000;
+    .bonus-sep {
+      font-size: 18px;
+      color: var(--text-sub);
+      font-weight: 700;
     }
 
-    label {
-      font-size: 16px;
-      margin-left: 10px;
+    .ball.bonus {
+      outline: 3px solid var(--bonus-border);
+      outline-offset: 2px;
     }
   </style>
 </head>
@@ -106,10 +240,13 @@
   </header>
 
   <div class="container">
-    <button class="generate-btn" onclick="generateLotto()">번호 추천 받기</button>
-    <br><br>
-    <input type="checkbox" id="bonusCheck">
-    <label for="bonusCheck">보너스 번호 포함</label>
+    <div class="controls">
+      <button class="generate-btn" onclick="generateLotto()">✨ 번호 추천 받기</button>
+      <div class="checkbox-wrap">
+        <input type="checkbox" id="bonusCheck">
+        <label for="bonusCheck">보너스 번호 포함</label>
+      </div>
+    </div>
 
     <div id="result"></div>
   </div>
@@ -128,62 +265,68 @@
       applyTheme(current === "dark" ? "light" : "dark");
     }
 
-    const saved = localStorage.getItem("theme") || "light";
-    applyTheme(saved);
+    applyTheme(localStorage.getItem("theme") || "light");
 
     function getRandomColor() {
       const hue = Math.floor(Math.random() * 360);
-      const sat = Math.floor(Math.random() * 21) + 60;  // 60~80%
-      const lit = Math.floor(Math.random() * 16) + 38;  // 38~53%
+      const sat = Math.floor(Math.random() * 21) + 60;
+      const lit = Math.floor(Math.random() * 16) + 38;
       return `hsl(${hue}, ${sat}%, ${lit}%)`;
     }
 
-    function getNumbers(count, exclude=[]) {
+    function getNumbers(count, exclude = []) {
       let nums = [];
-
       while (nums.length < count) {
         let n = Math.floor(Math.random() * 45) + 1;
-        if (!nums.includes(n) && !exclude.includes(n)) {
-          nums.push(n);
-        }
+        if (!nums.includes(n) && !exclude.includes(n)) nums.push(n);
       }
-
-      return nums.sort((a,b) => a-b);
+      return nums.sort((a, b) => a - b);
     }
 
     function generateLotto() {
       const result = document.getElementById("result");
       result.innerHTML = "";
-
       const includeBonus = document.getElementById("bonusCheck").checked;
+      const labels = ["1세트", "2세트", "3세트", "4세트", "5세트"];
 
       for (let i = 0; i < 5; i++) {
-        let setDiv = document.createElement("div");
-        setDiv.className = "set";
+        const card = document.createElement("div");
+        card.className = "set-card";
+        card.style.animationDelay = `${i * 60}ms`;
 
-        let mainNums = getNumbers(6);
+        const label = document.createElement("span");
+        label.className = "set-label";
+        label.textContent = labels[i];
+        card.appendChild(label);
 
+        const ballsWrap = document.createElement("div");
+        ballsWrap.className = "balls-wrap";
+
+        const mainNums = getNumbers(6);
         mainNums.forEach(n => {
-          let span = document.createElement("span");
+          const span = document.createElement("span");
           span.className = "ball";
           span.textContent = n;
           span.style.backgroundColor = getRandomColor();
-          setDiv.appendChild(span);
+          ballsWrap.appendChild(span);
         });
 
         if (includeBonus) {
-          let bonusNum = getNumbers(1, mainNums)[0];
+          const sep = document.createElement("span");
+          sep.className = "bonus-sep";
+          sep.textContent = "+";
+          ballsWrap.appendChild(sep);
 
-          let bonusSpan = document.createElement("span");
+          const bonusNum = getNumbers(1, mainNums)[0];
+          const bonusSpan = document.createElement("span");
           bonusSpan.className = "ball bonus";
           bonusSpan.textContent = bonusNum;
           bonusSpan.style.backgroundColor = getRandomColor();
-
-          setDiv.appendChild(document.createTextNode(" + "));
-          setDiv.appendChild(bonusSpan);
+          ballsWrap.appendChild(bonusSpan);
         }
 
-        result.appendChild(setDiv);
+        card.appendChild(ballsWrap);
+        result.appendChild(card);
       }
     }
   </script>
