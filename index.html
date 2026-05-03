@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>로또 번호 추천기</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      text-align: center;
+    }
+
+    header {
+      background: #222;
+      color: white;
+      padding: 40px 20px;
+    }
+
+    .container {
+      margin-top: 40px;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      background: #0077cc;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #005fa3;
+    }
+
+    .set {
+      margin-top: 20px;
+    }
+
+    .ball {
+      display: inline-block;
+      width: 45px;
+      height: 45px;
+      line-height: 45px;
+      margin: 5px;
+      border-radius: 50%;
+      color: white;
+      font-weight: bold;
+    }
+
+    .bonus {
+      border: 3px solid #000;
+    }
+
+    label {
+      font-size: 16px;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🎯 로또 번호 추천기</h1>
+    <p>버튼을 눌러 5세트 번호를 받아보세요</p>
+  </header>
+
+  <div class="container">
+    <button onclick="generateLotto()">번호 추천 받기</button>
+    <br><br>
+    <input type="checkbox" id="bonusCheck">
+    <label for="bonusCheck">보너스 번호 포함</label>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function getRandomColor() {
+      return `rgb(${Math.floor(Math.random()*256)}, 
+                  ${Math.floor(Math.random()*256)}, 
+                  ${Math.floor(Math.random()*256)})`;
+    }
+
+    function getNumbers(count, exclude=[]) {
+      let nums = [];
+
+      while (nums.length < count) {
+        let n = Math.floor(Math.random() * 45) + 1;
+        if (!nums.includes(n) && !exclude.includes(n)) {
+          nums.push(n);
+        }
+      }
+
+      return nums.sort((a,b) => a-b);
+    }
+
+    function generateLotto() {
+      const result = document.getElementById("result");
+      result.innerHTML = "";
+
+      const includeBonus = document.getElementById("bonusCheck").checked;
+
+      for (let i = 0; i < 5; i++) {
+        let setDiv = document.createElement("div");
+        setDiv.className = "set";
+
+        let mainNums = getNumbers(6);
+
+        mainNums.forEach(n => {
+          let span = document.createElement("span");
+          span.className = "ball";
+          span.textContent = n;
+          span.style.backgroundColor = getRandomColor();
+          setDiv.appendChild(span);
+        });
+
+        if (includeBonus) {
+          let bonusNum = getNumbers(1, mainNums)[0];
+
+          let bonusSpan = document.createElement("span");
+          bonusSpan.className = "ball bonus";
+          bonusSpan.textContent = bonusNum;
+          bonusSpan.style.backgroundColor = getRandomColor();
+
+          setDiv.appendChild(document.createTextNode(" + "));
+          setDiv.appendChild(bonusSpan);
+        }
+
+        result.appendChild(setDiv);
+      }
+    }
+  </script>
+
+</body>
+</html>
