@@ -401,7 +401,7 @@
 
   <!-- 기록 패널 -->
   <div class="history-panel">
-    <h2>기록 리스트</h2>
+    <h2>기록 순위</h2>
     <ul class="history-list" id="historyList"></ul>
     <p class="history-empty" id="historyEmpty">아직 기록이 없습니다.</p>
     <button class="clear-btn" onclick="clearHistory()">기록 초기화</button>
@@ -464,33 +464,46 @@
     const empty = document.getElementById("historyEmpty");
     list.innerHTML = "";
 
-    if (gameHistory.length === 0) { empty.style.display = "block"; return; }
+    const normal     = gameHistory.filter(r => r.type === "normal");
+    const falseCount = gameHistory.filter(r => r.type === "false").length;
+
+    if (normal.length === 0 && falseCount === 0) { empty.style.display = "block"; return; }
     empty.style.display = "none";
 
-    const times   = gameHistory.filter(r => r.type === "normal").map(r => r.time);
-    const minTime = times.length ? Math.min(...times) : null;
+    // 빠른 순으로 정렬
+    const sorted = [...normal].sort((a, b) => a.time - b.time);
 
-    gameHistory.slice().reverse().forEach((entry, i) => {
+    sorted.forEach((entry, i) => {
       const li   = document.createElement("li");
       const rank = document.createElement("span");
       rank.className   = "rank";
-      rank.textContent = "#" + (gameHistory.length - i);
+      rank.textContent = (i + 1) + "위";
 
       const time = document.createElement("span");
       time.className = "time";
+      time.textContent = entry.time + "ms";
 
-      if (entry.type === "false") {
-        li.classList.add("false-start");
-        time.textContent = "플라잉";
-      } else {
-        time.textContent = entry.time + "ms";
-        if (entry.time === minTime) li.classList.add("best");
-      }
+      if (i === 0) li.classList.add("best");
 
       li.appendChild(rank);
       li.appendChild(time);
       list.appendChild(li);
     });
+
+    // 플라잉 횟수 요약
+    if (falseCount > 0) {
+      const li    = document.createElement("li");
+      li.classList.add("false-start");
+      const label = document.createElement("span");
+      label.className   = "rank";
+      label.textContent = "플라잉";
+      const cnt   = document.createElement("span");
+      cnt.className   = "time";
+      cnt.textContent = falseCount + "회";
+      li.appendChild(label);
+      li.appendChild(cnt);
+      list.appendChild(li);
+    }
   }
 
   function addHistory(entry) {
