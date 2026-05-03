@@ -4,24 +4,61 @@
   <meta charset="UTF-8">
   <title>로또 번호 추천기</title>
   <style>
+    :root {
+      --bg: #f4f6f8;
+      --header-bg: #222;
+      --header-color: #ffffff;
+      --text: #111111;
+      --card-bg: #ffffff;
+      --toggle-bg: #444;
+      --toggle-color: #ffffff;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1a1a2e;
+      --header-bg: #0f0f1a;
+      --header-color: #e0e0e0;
+      --text: #e0e0e0;
+      --card-bg: #16213e;
+      --toggle-bg: #e0e0e0;
+      --toggle-color: #1a1a2e;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f4f6f8;
+      background: var(--bg);
+      color: var(--text);
       text-align: center;
+      transition: background 0.3s, color 0.3s;
     }
 
     header {
-      background: #222;
-      color: white;
-      padding: 40px 20px;
+      background: var(--header-bg);
+      color: var(--header-color);
+      padding: 40px 20px 20px;
+      position: relative;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 20px;
+      background: var(--toggle-bg);
+      color: var(--toggle-color);
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
     }
 
     .container {
       margin-top: 40px;
     }
 
-    button {
+    button.generate-btn {
       padding: 15px 30px;
       font-size: 18px;
       border: none;
@@ -31,7 +68,7 @@
       cursor: pointer;
     }
 
-    button:hover {
+    button.generate-btn:hover {
       background: #005fa3;
     }
 
@@ -63,12 +100,13 @@
 <body>
 
   <header>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 다크모드</button>
     <h1>🎯 로또 번호 추천기</h1>
     <p>버튼을 눌러 5세트 번호를 받아보세요</p>
   </header>
 
   <div class="container">
-    <button onclick="generateLotto()">번호 추천 받기</button>
+    <button class="generate-btn" onclick="generateLotto()">번호 추천 받기</button>
     <br><br>
     <input type="checkbox" id="bonusCheck">
     <label for="bonusCheck">보너스 번호 포함</label>
@@ -77,9 +115,25 @@
   </div>
 
   <script>
+    const btn = document.getElementById("themeBtn");
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      btn.textContent = theme === "dark" ? "☀️ 라이트모드" : "🌙 다크모드";
+      localStorage.setItem("theme", theme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme");
+      applyTheme(current === "dark" ? "light" : "dark");
+    }
+
+    const saved = localStorage.getItem("theme") || "light";
+    applyTheme(saved);
+
     function getRandomColor() {
-      return `rgb(${Math.floor(Math.random()*256)}, 
-                  ${Math.floor(Math.random()*256)}, 
+      return `rgb(${Math.floor(Math.random()*256)},
+                  ${Math.floor(Math.random()*256)},
                   ${Math.floor(Math.random()*256)})`;
     }
 
