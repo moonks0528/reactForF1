@@ -119,7 +119,6 @@
       height: 86px;
       background: #232323;
       border-radius: 10px;
-      overflow: hidden;
     }
 
     .track-road::before,
@@ -158,7 +157,7 @@
 
     .finish-line {
       position: absolute;
-      right: 28px; top: 0; bottom: 0;
+      right: 90px; top: 0; bottom: 0;
       width: 13px;
       background: repeating-linear-gradient(
         to bottom, black 0, black 9px, white 9px, white 18px
@@ -314,9 +313,10 @@
       /* 트랙: 낮게 + 차 축소 */
       .track-section { padding: 18px 16px; }
       .track-road    { height: 64px; }
-      .car-wrap      { top: 10px; }    /* (64 - 44) / 2 */
-      .car-wrap svg  { width: 88px; height: 35px; }
-      .start-line    { left: 102px; }
+      .car-wrap      { top: 22px; }    /* (64 - 20) / 2 */
+      .car-wrap svg  { width: 55px; height: 20px; }
+      .start-line    { left: 80px; }
+      .finish-line   { right: 60px; width: 10px; }
 
       .speed-lines { gap: 5px; margin-right: 5px; }
       .speed-lines span:nth-child(1) { width: 22px; }
@@ -423,8 +423,12 @@
 
   /* ── 카 애니메이션 ── */
   function maxTravel() {
-    // 차가 결승선을 완전히 넘어 화면 밖으로 나가도록 트랙 전체 폭만큼 이동
-    return trackRoad.offsetWidth;
+    const isMobile = window.innerWidth <= 600;
+    // 차의 오른쪽 끝이 트랙 오른쪽 끝에서 8px 안쪽에 멈추도록 계산
+    // 데스크탑: carWidth=132, carLeft=12 → maxTravel = trackWidth - 132 - 8 - 12
+    // 모바일:   carWidth=55,  carLeft=12 → maxTravel = trackWidth - 55  - 8 - 12
+    const carWidth = isMobile ? 55 : 132;
+    return Math.max(0, trackRoad.offsetWidth - carWidth - 20);
   }
 
   function resetCar() {
