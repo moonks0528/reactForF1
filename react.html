@@ -148,7 +148,7 @@
 
     .start-line {
       position: absolute;
-      left: 28px; top: 0; bottom: 0;
+      left: 155px; top: 0; bottom: 0;
       width: 5px;
       background: repeating-linear-gradient(
         to bottom, #eee 0, #eee 9px, #333 9px, #333 18px
@@ -168,7 +168,7 @@
 
     .car-wrap {
       position: absolute;
-      left: 42px;
+      left: 12px;
       top: 17px;
       display: flex;
       align-items: center;
@@ -316,6 +316,7 @@
       .track-road    { height: 64px; }
       .car-wrap      { top: 10px; }    /* (64 - 44) / 2 */
       .car-wrap svg  { width: 88px; height: 35px; }
+      .start-line    { left: 102px; }
 
       .speed-lines { gap: 5px; margin-right: 5px; }
       .speed-lines span:nth-child(1) { width: 22px; }
@@ -422,10 +423,8 @@
 
   /* ── 카 애니메이션 ── */
   function maxTravel() {
-    const isMobile = window.innerWidth <= 600;
-    // 시작오프셋(42) + 차폭(데스크탑132/모바일88) + 속도선여유 + 결승선여유(50)
-    const reserved = isMobile ? 195 : 276;
-    return Math.max(0, trackRoad.offsetWidth - reserved);
+    // 차가 결승선을 완전히 넘어 화면 밖으로 나가도록 트랙 전체 폭만큼 이동
+    return trackRoad.offsetWidth;
   }
 
   function resetCar() {
