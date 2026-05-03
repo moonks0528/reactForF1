@@ -132,9 +132,10 @@
     applyTheme(saved);
 
     function getRandomColor() {
-      return `rgb(${Math.floor(Math.random()*256)},
-                  ${Math.floor(Math.random()*256)},
-                  ${Math.floor(Math.random()*256)})`;
+      const hue = Math.floor(Math.random() * 360);
+      const sat = Math.floor(Math.random() * 21) + 60;  // 60~80%
+      const lit = Math.floor(Math.random() * 16) + 38;  // 38~53%
+      return `hsl(${hue}, ${sat}%, ${lit}%)`;
     }
 
     function getNumbers(count, exclude=[]) {
